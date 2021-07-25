@@ -1,7 +1,6 @@
 const express = require('express');
 const http = require('http');
 
-
 const app = express();
 const server = http.createServer(app);
 
@@ -17,7 +16,7 @@ io.on('connection', (socket) => {
 		console.log('A user disconnected');
 	});
     socket.on('chat message', (message) => {
-        io.emit('chat message', message); 
+        io.emit('chat message', {message, socketid: socket.id}); 
     });
 });
 
