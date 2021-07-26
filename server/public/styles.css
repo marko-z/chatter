@@ -1,11 +1,12 @@
-html, body { height: 100%; }
-
-/* so min height doesn't work? */
+html, body { 
+    height: 100%;
+}
 
 body {
+    box-sizing: border-box;
     background: whitesmoke;
     margin: 0 auto;
-    padding: 0 1rem; /* minimum 'margin' */
+    padding: 1rem 1rem; /* minimum 'margin' (sides) as well as usticking stuff from the top and bottom (though adding div prob better?) */
     max-width: 500px;
     display: flex;
     flex-direction: column;
@@ -15,16 +16,30 @@ body {
     display: flex;
     list-style: none;
     flex-direction: column;
-    padding-left: 0;
-    /*align-items: center;*/
+    padding: 0 8px;
+    overflow: auto;
+    flex-grow: 1;
+    margin: 0;
+    overscroll-behavior-y: contain;
+    scroll-snap-type: y proximity;
+}
+
+#messages::-webkit-scrollbar {
+    display: none;
+}
+
+#messages > div:last-child {
+    scroll-snap-align: end;
 }
 
 .message {
     display: block;
     padding: 1rem;
     border-radius: 1rem;
+    margin-top: 1rem;
     background: white;
 }
+
 .own {
     align-self: flex-end;
     background: #6BBAA7
@@ -34,20 +49,28 @@ body {
     align-self: flex-start;
 }
  
+.notice {
+    align-self: center;
+    text-align: center;
+    color: gray;
+    font-size: 1rem;
+    margin-top: 1rem;
+}
 
 #form {
     /* position: absolute;  */
     /* width: 100%; */
 
-    height: 4rem;
+    height: 6rem; 
     display: box;
-    /* box-sizing: border-box;  */
+    /* box-s    izing: border-box;  */
     /* max-width: 600px; */
     /* bottom: 0; */
-    margin: auto 0 1rem 0; /*holy fuck this is the only thing that works, not even justify-self: flex-end works */
+    /* margin: max(1rem, auto) 0 1rem 0; holy fuck this is the only thing that works, not even justify-self: flex-end works */
     /* left: 50%;
-    transform: translate(-50%, -1rem);
-    padding: 2rem; */
+    transform: translate(-50%, -1rem);*/
+    flex-shrink: 0;
+    /* padding: 1rem;  */
     border-radius: 1.5rem;
     box-shadow: 1px 1px grey;
     display: flex;

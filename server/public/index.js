@@ -13,7 +13,7 @@ form.addEventListener('submit', (e) => {
 });
 
 socket.on('chat message', (data) => {
-
+    
 	let item = document.createElement('li');
 	item.textContent = data.message;
 
@@ -26,3 +26,20 @@ socket.on('chat message', (data) => {
 	messages.appendChild(item);
 	window.scrollTo(0,document.body.scrollHeight) //??
 });
+
+socket.on('announce', (socketid) => {
+    console.log('ANNOUNCED');
+    let item = document.createElement('li');
+    item.textContent = `${socketid} joined the room`; 
+    item.className = 'notice';
+    messages.appendChild(item);
+    window.scrollTo(0,document.body.scrollHeight)
+});
+
+socket.on('announce exit', (socketid) => {
+    let item = document.createElement('li');
+    item.textContent = `${socketid} left the room`; 
+    item.className = 'notice';
+    messages.appendChild(item);
+	window.scrollTo(0,document.body.scrollHeight)
+ });
