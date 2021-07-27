@@ -3,6 +3,7 @@ let socket = io();
 let form = document.getElementById('form');
 let input = document.getElementById('input');
 let messages = document.getElementById('messages');
+let userListDiv = document.getElementById('users');
 
 form.addEventListener('submit', (e) => {
 	e.preventDefault();
@@ -41,5 +42,18 @@ socket.on('announce exit', (socketid) => {
     item.textContent = `${socketid} left the room`; 
     item.className = 'notice';
     messages.appendChild(item);
-	window.scrollTo(0,document.body.scrollHeight)
+	// window.scrollTo(0,document.body.scrollHeight)
  });
+
+socket.on('updateUserList', (userList) => {
+    userListDiv.textContent='';
+    console.log(userList);
+    for (let user of userList) {
+        let userItem = document.createElement('li');
+        userItem.textContent = user;
+        userListDiv.appendChild(userItem);
+    }
+    // console.log('userIter: ' + userIter);
+    // console.log('userList: ' + userList.textContent);
+    
+})

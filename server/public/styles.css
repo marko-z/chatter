@@ -7,7 +7,21 @@ body {
     background: whitesmoke;
     margin: 0 auto;
     padding: 1rem 1rem; /* minimum 'margin' (sides) as well as usticking stuff from the top and bottom (though adding div prob better?) */
-    max-width: 500px;
+    max-width: 1200px;
+    display: flex;
+}
+#sidebar {
+    width: 25%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-self: flex-start;
+}
+
+#content {
+    height: 100%;
+    justify-self: center;
     display: flex;
     flex-direction: column;
 }
@@ -19,7 +33,7 @@ body {
     padding: 0 8px;
     overflow: auto;
     flex-grow: 1;
-    margin: 0;
+    /* margin: 0; */
     overscroll-behavior-y: contain;
     scroll-snap-type: y proximity;
 }
@@ -58,19 +72,9 @@ body {
 }
 
 #form {
-    /* position: absolute;  */
-    /* width: 100%; */
-
     height: 6rem; 
     display: box;
-    /* box-s    izing: border-box;  */
-    /* max-width: 600px; */
-    /* bottom: 0; */
-    /* margin: max(1rem, auto) 0 1rem 0; holy fuck this is the only thing that works, not even justify-self: flex-end works */
-    /* left: 50%;
-    transform: translate(-50%, -1rem);*/
     flex-shrink: 0;
-    /* padding: 1rem;  */
     border-radius: 1.5rem;
     box-shadow: 1px 1px grey;
     display: flex;
