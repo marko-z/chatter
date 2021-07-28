@@ -1,12 +1,19 @@
 const express = require('express');
 const http = require('http');
-
+const cors = require('cors');
 const app = express();
+app.use(cors());
 const server = http.createServer(app);
 const util = require('util');
-
-const { Server } = require('socket.io');
-const io = new Server(server);
+const port = 3001;
+const io = require('socket.io')(server, {
+    cors: {
+        origin: '*',
+        methods: ["GET", "POST"],
+    }
+});
+//const { Server } = require('socket.io');
+//const io = new Server(server);
 
 app.use(express.static(__dirname + '/public/'))
 
@@ -33,7 +40,7 @@ app.get('/', (req, res) => {
 });
 
 
-server.listen(3000, () => {
-	console.log('Listening on 3000');
+server.listen(port, () => {
+	console.log(`Listening on ${port}`);
 });
 

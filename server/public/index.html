@@ -2,11 +2,11 @@
 <html>
     <head>
         <link rel="stylesheet" href="styles.css">
-        <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+        <script src="http://localhost:3001/socket.io/socket.io.js"></script>
         <script src="index.js" defer></script>
     </head>
     <body>
-        <div id="sidebar">
+        <div class="sidebar" id="user-sidebar">
           <ul id="users"></ul>
         </div>
         <div id="content">
@@ -15,6 +15,7 @@
             <input name="message" id="input" autocomplete="off" /><button>Send</button>
           </form>
         </div>
+        <div class="sidebar"></div>
     </body>
 </html>
 
