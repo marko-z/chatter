@@ -21,7 +21,8 @@ body {
 #user-sidebar {
     display: flex;
     flex-direction: column;
-    justify-self: flex-start
+    justify-self: flex-start;
+
 }
 
 #users {
@@ -56,7 +57,7 @@ body {
 }
 
 #messages > li:last-child {
-     scroll-snap-align: end; 
+    scroll-snap-align: end; 
 }
 
 .message {
