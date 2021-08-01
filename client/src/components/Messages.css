@@ -37,27 +37,3 @@
     flex: 0.8;
 }
 
-.message {
-    display: block;
-    padding: 1rem;
-    border-radius: 1rem;
-    margin-top: 1rem;
-    background: white;
-}
-
-.own {
-    align-self: flex-end;
-    background: #6BBAA7
-}
-
-.other {
-    align-self: flex-start;
-}
- 
-.notice {
-    align-self: center;
-    text-align: center;
-    color: gray;
-    font-size: 1rem;
-    margin-top: 1rem;
-}

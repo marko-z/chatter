@@ -19,7 +19,6 @@ app.use(express.static(__dirname + '/public/'))
 
 io.on('connection', (socket) => {
 	console.log('A user connected!');
-    whoKnows = 
     io.emit('new message', {messageText: `${socket.id} joined the room.`, socketid: socket.id, notice: true});
 
     io.emit('updateUserList', Array.from(io.sockets.sockets.keys())); 
@@ -29,7 +28,7 @@ io.on('connection', (socket) => {
 	});
 
     socket.on('new message', (message) => {
-        io.emit('new message', {messageText, socketid: socket.id, notice: false}); 
+        io.emit('new message', {messageText: message, socketid: socket.id, notice: false}); 
     });
 });
 

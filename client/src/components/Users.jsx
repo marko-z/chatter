@@ -8,7 +8,7 @@ const Users = ({
   return (
     <ul id="users">
       {userList.map(user => {
-        return <li className="user">{user.data}</li>
+        return <li className="user" key={user}>{user}</li>
       })}
     </ul>
   );

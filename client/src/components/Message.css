@@ -1,0 +1,33 @@
+.message {
+    display: flex;
+    flex-direction: column;
+    margin-top: 1rem;
+}
+
+
+.own >  {
+    align-self: flex-end;
+    background: #6BBAA7
+}
+
+.other {
+    align-self: flex-start;
+    /* Not quite sure here: */
+    margin-top: 0.5rem;
+}
+
+.messageLabel {
+    text-align: right;
+}
+
+.messageText {
+    background: white;
+    border-radius: 1rem;
+}
+
+.notice {
+    align-self: center;
+    text-align: center;
+    color: gray;
+    font-size: 1rem;
+}
