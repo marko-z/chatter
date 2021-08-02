@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import './InputBox.css';
+import { socket } from "../App";
 
-const InputBox = ({sendMessage}) => {
+const InputBox = () => {
+
   const [input, setInput] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    sendMessage(input);
+    socket.emit('new message', input);
     setInput('');
   }
 
