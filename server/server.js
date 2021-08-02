@@ -19,19 +19,16 @@ app.use(express.static(__dirname + '/public/'))
 
 io.on('connection', (socket) => {
 	console.log('A user connected!');
-    io.emit('announce', (socket.id));
+    io.emit('new message', {messageText: `${socket.id} joined the room.`, socketid: socket.id, notice: true});
 
-    // for ( let key of io.sockets.sockets.keys()) {
-    //     console.log(key);
-    // }
     io.emit('updateUserList', Array.from(io.sockets.sockets.keys())); 
 	socket.on('disconnect', () => {
-        io.emit('announce exit', socket.id)
+        io.emit('new message', {messageText: `${socket.id} left the room.`, socketid: socket.id, notice: true});
 		console.log('A user disconnected');
 	});
 
-    socket.on('chat message', (message) => {
-        io.emit('chat message', {message, socketid: socket.id}); 
+    socket.on('new message', (message) => {
+        io.emit('new message', {messageText: message, socketid: socket.id, notice: false}); 
     });
 });
 

@@ -1,0 +1,22 @@
+#messages {
+    display: flex;
+    list-style: none;
+    flex-direction: column;
+    padding: 0 8px;
+    overflow: auto;
+    flex-grow: 1;
+    /* margin: 0; */
+    /*-webkit-overflow-scrolling: touch;*/
+    overscroll-behavior-y: contain;
+    scroll-snap-type: y proximity;
+}
+
+#messages::-webkit-scrollbar {
+    display: none;
+}
+
+#messages > li:last-child {
+    scroll-snap-align: end; 
+}
+
+

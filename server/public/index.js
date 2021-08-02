@@ -6,26 +6,26 @@ let messages = document.getElementById('messages');
 let userListDiv = document.getElementById('users');
 
 form.addEventListener('submit', (e) => {
-	e.preventDefault();
-	if (input.value) {
-		socket.emit('chat message', `${socket.id}: ${input.value}`);
-		input.value = '';
-	}
+    e.preventDefault();
+    if (input.value) {
+        socket.emit('chat message', `${socket.id}: ${input.value}`);
+        input.value = '';
+    }
 });
 
 socket.on('chat message', (data) => {
     
-	let item = document.createElement('li');
-	item.textContent = data.message;
+    let item = document.createElement('li');
+    item.textContent = data.message;
 
-	if (data.socketid === socket.id) {
-		item.className="message own";
-	} else {
-		item.className="message other";
-	}
+    if (data.socketid === socket.id) {
+        item.className="message own";
+    } else {
+        item.className="message other";
+    }
 
-	messages.appendChild(item);
-	window.scrollTo(0,document.body.scrollHeight) //??
+    messages.appendChild(item);
+    window.scrollTo(0,document.body.scrollHeight) //??
 });
 
 socket.on('announce', (socketid) => {
@@ -42,7 +42,7 @@ socket.on('announce exit', (socketid) => {
     item.textContent = `${socketid} left the room`; 
     item.className = 'notice';
     messages.appendChild(item);
-	// window.scrollTo(0,document.body.scrollHeight)
+    // window.scrollTo(0,document.body.scrollHeight)
  });
 
 socket.on('updateUserList', (userList) => {
