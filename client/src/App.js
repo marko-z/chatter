@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import Users from "./components/Users";
 import Messages from "./components/Messages";
+import InputBox from './components/InputBox';
 import { io } from "socket.io-client";
 import './App.css';
 
 const socket = io('ws://localhost:3001')
-
 
 const App = () => {
   const [users, setUsers] = useState([]);
@@ -22,19 +22,19 @@ const App = () => {
       setUsers(users);
     });
 
-    socket.on('new message', ({messageText, socketid, notice}) => {
+    socket.on('new message', ({ messageText, socketid, notice }) => {
 
       let className;
       // console.log(messageText);
       // console.log(socketid);
       // console.log(notice);
 
-      if (notice===true) {
+      if (notice === true) {
         className = 'notice';
       } else {
         className = (socket.id === socketid) ? 'message own' : 'message other';
       }
-      
+
       // console.log(`Before: ${JSON.stringify(messages, null, 4)}`);
 
       setMessages([...messages, {
@@ -42,12 +42,9 @@ const App = () => {
         messageText,
         socketid,
       }]);
-      
+
       // console.log(`After: ${JSON.stringify(messages, null, 4)}`);
-
-
     });
-
   });
 
   return (
@@ -56,7 +53,8 @@ const App = () => {
         <Users userList={users} />
       </div>
       <div className="content">
-        <Messages messageList={messages} sendMessage={sendMessage}/>
+        <Messages messageList={messages} />
+        <InputBox sendMessage={sendMessage} />
       </div>
       <div className="sidebar"></div>
     </>

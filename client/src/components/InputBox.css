@@ -1,0 +1,18 @@
+
+#form {
+    height: 6rem; 
+    display: box;
+    flex-shrink: 0;
+    border-radius: 1.5rem;
+    box-shadow: 1px 1px grey;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: white;
+}
+
+#input {
+    border: none;
+    font-size: 1.5rem;
+    flex: 0.8;
+}
