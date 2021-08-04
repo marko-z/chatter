@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import './Messages.css';
 import Message from "./Message";
 import { socket } from "../App";
-
+  
 const Messages = () => {
 
   const [messages, setMessages] = useState([]); 

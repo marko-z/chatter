@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import './InputBox.css';
 import { socket } from "../App";
+import { FaPaperPlane } from "react-icons/fa";
 
 const InputBox = () => {
 
@@ -8,8 +9,10 @@ const InputBox = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    socket.emit('new message', input);
-    setInput('');
+    if (input) {
+      socket.emit('new message', input);
+      setInput('');
+    }
   }
 
   return (
@@ -20,7 +23,7 @@ const InputBox = () => {
         autoComplete="off"
         value={input}
         onChange={e => setInput(e.target.value)} />
-      <button>Send</button>
+      <button><FaPaperPlane /></button>
     </form>
   );
 }

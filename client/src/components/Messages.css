@@ -2,7 +2,7 @@
     display: flex;
     list-style: none;
     flex-direction: column;
-    padding: 0 8px;
+    padding: 0 4px;
     overflow: auto;
     flex-grow: 1;
     /* margin: 0; */

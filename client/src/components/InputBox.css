@@ -1,7 +1,6 @@
 
 #form {
     height: 6rem; 
-    display: box;
     flex-shrink: 0;
     border-radius: 1.5rem;
     box-shadow: 1px 1px grey;
@@ -15,4 +14,17 @@
     border: none;
     font-size: 1.5rem;
     flex: 0.8;
+    flex-grow: 1;
+    margin-left: 1rem;
+    margin-right: 1rem;
+}
+
+button {
+    background: transparent;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    margin-right: 2rem;
+    margin-top: 0.3rem;
+    color: #619488;
 }
