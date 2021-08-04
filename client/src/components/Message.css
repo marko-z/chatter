@@ -2,6 +2,7 @@
     display: flex;
     flex-direction: column;
     margin-top: 1rem;
+    
 }
 
 .message.own {
@@ -15,14 +16,19 @@
 }
 
 .messageLabel {
-    text-align: right;
+    text-align: left;
     font-size: 0.8rem;
+    color: grey;
 }
 
 .messageText {
     background: white;
     border-radius: 0.7rem;
     padding: 0.5rem;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.15), 
+              0 2px 2px rgba(0,0,0,0.10), 
+              0 4px 4px rgba(0,0,0,0.05),
+              0 8px 8px rgba(0,0,0,0.02);
 }
 
 .message.own > .messageText {
