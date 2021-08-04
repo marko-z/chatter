@@ -7,9 +7,16 @@ const Message = ({
   className,
   socketid,
 }) => {
-  console.log(messageText);
-  console.log(className);
-  console.log(socketid);
+
+  // id = "messages"
+  //   class = "message"
+  //     class = "notice"
+  //   class = "message own"
+  //     class = "messageLabel"
+  //     class = "messageText"
+  //   class = "message other"
+  //     class = "messageText"
+  
   if (className === 'message other') {
     return (
       <li className={className} key={_uniqueId()}>

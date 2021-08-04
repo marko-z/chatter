@@ -9,7 +9,7 @@ const Users = () => {
     socket.on('updateUserList', (users) => {
       setUsers(users);
     });
-  });
+  }, []);
 
   return (
     <ul id="users">

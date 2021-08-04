@@ -4,13 +4,11 @@
     margin-top: 1rem;
 }
 
-
-.own >  {
+.message.own {
     align-self: flex-end;
-    background: #6BBAA7
 }
 
-.other {
+.message.other {
     align-self: flex-start;
     /* Not quite sure here: */
     margin-top: 0.5rem;
@@ -18,12 +16,19 @@
 
 .messageLabel {
     text-align: right;
+    font-size: 0.8rem;
 }
 
 .messageText {
     background: white;
-    border-radius: 1rem;
+    border-radius: 0.5rem;
+    padding: 0.5rem;
 }
+
+.message.own > .messageText {
+    background: #6BBAA7
+}
+
 
 .notice {
     align-self: center;
