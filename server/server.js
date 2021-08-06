@@ -1,10 +1,10 @@
 const express = require('express');
 const http = require('http');
 const cors = require('cors');
+const Users = require('./data/Users');
 const app = express();
 app.use(cors());
 const server = http.createServer(app);
-const util = require('util');
 const port = 3001;
 const io = require('socket.io')(server, {
     cors: {
@@ -12,6 +12,8 @@ const io = require('socket.io')(server, {
         methods: ["GET", "POST"],
     }
 });
+
+const users = new Users;
 //const { Server } = require('socket.io');
 //const io = new Server(server);
 

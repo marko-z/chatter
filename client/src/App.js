@@ -1,5 +1,7 @@
 import React from 'react';
+import { BrowserRouter as Router, Route } from 'react-router-dom';
 import Users from "./components/Users";
+import Login from './components/Login';
 import Messages from "./components/Messages";
 import InputBox from './components/InputBox';
 import { io } from "socket.io-client";
@@ -11,14 +13,28 @@ export const socket = io('ws://localhost:3001');
 const App = () => {
   return (
     <>
-      <div className="sidebar" id="user-sidebar">
-        <Users />
-      </div>
-      <div className="content">
-        <Messages />
-        <InputBox />
-      </div>
-      <div className="sidebar"></div>
+    <Router>
+      <Route path="/login">
+        <div className="sidebar"></div>
+        <div className="content">
+          {/* <div className="bar"></div> */}
+          <Login />
+          {/* <div className="bar"></div> */}
+        </div>
+        <div className="sidebar"></div>
+      </Route>
+      <Route path="/chat">
+        <div className="sidebar" id="user-sidebar">
+          <Users />
+        </div>
+        <div className="content">
+          <Messages />
+          <InputBox />
+        </div>
+        <div className="sidebar"></div>
+      </Route>
+    </Router>
+      
     </>
   );
 }

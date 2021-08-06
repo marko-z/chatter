@@ -23,7 +23,7 @@ const InputBox = () => {
         autoComplete="off"
         value={input}
         onChange={e => setInput(e.target.value)} />
-      <button><FaPaperPlane /></button>
+      <button id='message-button'><FaPaperPlane /></button>
     </form>
   );
 }

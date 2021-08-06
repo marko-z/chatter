@@ -2,17 +2,18 @@
     display: flex;
     flex-direction: column;
     margin-top: 1rem;
-    
 }
 
 .message.own {
     align-self: flex-end;
+    max-width: 70%;
 }
 
 .message.other {
     align-self: flex-start;
     /* Not quite sure here: */
     margin-top: 0.5rem;
+    max-width: 50%;
 }
 
 .messageLabel {
@@ -29,6 +30,7 @@
               0 2px 2px rgba(0,0,0,0.10), 
               0 4px 4px rgba(0,0,0,0.05),
               0 8px 8px rgba(0,0,0,0.02);
+    word-wrap: break-word;
 }
 
 .message.own > .messageText {
