@@ -4,19 +4,19 @@ import './Login.css';
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [username2, setUsername2] = useState('');
-  const [password2, setPassword2] = useState('');
-
+  const [registerUsername, setRegisterUsername] = useState('');
+  const [registerPassword, setRegisterPassword] = useState('');
+  //<input ... () => setSignUp(false) on focus or click?
   useEffect(() => {
-    if (username2 || password2) {
+    if (registerUsername || registerPassword) {
       setUsername('');
-      setPassword('');
+      setPassword('');   
     }
     if (username || password) {
-      setUsername2('');
-      setPassword2('');
+      setRegisterUsername('');
+      setRegisterPassword('');
     }
-  },[username, password, username2, password2])
+  },[username, password, registerUsername, registerPassword])
 
   return (
     <>
@@ -28,8 +28,8 @@ const Login = () => {
           <input type='password' className='login-input' placeholder='Confirm Password'  />
           <button className='login-button'>Sign up</button>
         <div className='separator'>Log in (no password for guest)</div>
-          <input type='text' className='login-input' placeholder='Username' value={username2}  onChange={(e) => setUsername2(e.target.value)} />
-          <input type='password' className='login-input' placeholder='Password' value={password2} onChange={(e) => setPassword2(e.target.value)} />
+          <input type='text' className='login-input' placeholder='Username' value={registerUsername}  onChange={(e) => setRegisterUsername(e.target.value)} />
+          <input type='password' className='login-input' placeholder='Password' value={registerPassword} onChange={(e) => setRegisterPassword(e.target.value)} />
           <button className='login-button'>Sign in</button>
       </form>
       <div className='vertical-bar'></div>
