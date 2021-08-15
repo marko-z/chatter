@@ -1,6 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import './Login.css';
 
+const submitCredentials = (route, username, password) => {
+  return fetch('http://localhost:3001/'+route, {
+    method: 'POST',
+    header: {'Content-Type': 'application/json'},
+    body: JSON.stringify(username,password)
+  }).then(res => res.json());
+}
+
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -17,6 +25,34 @@ const Login = () => {
       setRegisterPassword('');
     }
   },[username, password, registerUsername, registerPassword])
+
+  handleLogin = (e) => {
+    e.preventDefault();
+    const token = await submitCredentials('/loginUser', username, password);
+    console.log(token);
+
+    if (token) {
+      // Redirect to chat page, set the user identity somehow?
+    } else {
+      // How can I implement an alert appearing at the bottom
+      // Saying that the login failed 
+    }
+
+  }
+
+  handleRegister = (e) => {
+    e.preventDefault();
+    const token = await submitCredentials('/registerUser', registerUsername, registerPassword);
+    console.log(token);
+
+    // We need to check the returned object, because the username
+    // Could be taken
+    if (token) {
+
+    } else {
+
+    }
+  }
 
   return (
     <>
