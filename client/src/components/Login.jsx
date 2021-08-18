@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
+import { useHistory } from 'react-router-dom';
 import './Login.css';
 
 const submitCredentials = (route, username, password) => {
-  return fetch('http://localhost:3001/'+route, {
+  const toSend = JSON.stringify({username, password});
+  console.log(`toSend: ${toSend}`)
+  return fetch('http://localhost:3001'+ route, {
     method: 'POST',
-    header: {'Content-Type': 'application/json'},
-    body: JSON.stringify(username,password)
-  }).then(res => res.json());
+    headers: {'Content-Type': 'application/json'},
+    body: toSend //could this be a problem at the receiving end?
+  }).then(res => res.json()); //either true or false 
 }
 
 const Login = () => {
@@ -14,7 +17,8 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [registerUsername, setRegisterUsername] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
-  //<input ... () => setSignUp(false) on focus or click?
+  const history = useHistory();
+
   useEffect(() => {
     if (registerUsername || registerPassword) {
       setUsername('');
@@ -26,32 +30,38 @@ const Login = () => {
     }
   },[username, password, registerUsername, registerPassword])
 
-  handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    const token = await submitCredentials('/loginUser', username, password);
-    console.log(token);
-
-    if (token) {
-      // Redirect to chat page, set the user identity somehow?
+    const auth = await submitCredentials('/loginUser', username, password);
+    if (auth) {
+      alert('Login successful');
+      history.push('/');
     } else {
+      alert('Login unsuccessful');
       // How can I implement an alert appearing at the bottom
       // Saying that the login failed 
     }
 
+    setUsername('');
+    setPassword('');
   }
 
-  handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
-    const token = await submitCredentials('/registerUser', registerUsername, registerPassword);
-    console.log(token);
-
-    // We need to check the returned object, because the username
-    // Could be taken
-    if (token) {
-
-    } else {
-
+    if (registerUsername === '' || registerPassword === '') {
+      alert('All fields are required');
+      return;
     }
+    
+    const token = await submitCredentials('/registerUser', registerUsername, registerPassword);
+    if (token) {
+      alert('Register successful');
+      history.push('/');
+    } else {
+      alert('User already exists. Register unsuccessful');
+    }
+    setRegisterUsername('');
+    setRegisterPassword('');
   }
 
   return (
@@ -59,14 +69,14 @@ const Login = () => {
       <div className='vertical-bar'></div>
       <form id='login'>
         <div className='separator'>Sign up</div>
-          <input type='text' className='login-input' placeholder='Username' value={username} onChange={(e) => setUsername(e.target.value)} />
-          <input type='password' className='login-input' placeholder='Password' value={password} onChange={(e) => setPassword(e.target.value)} />
-          <input type='password' className='login-input' placeholder='Confirm Password'  />
-          <button className='login-button'>Sign up</button>
-        <div className='separator'>Log in (no password for guest)</div>
-          <input type='text' className='login-input' placeholder='Username' value={registerUsername}  onChange={(e) => setRegisterUsername(e.target.value)} />
+          <input type='text' className='login-input' placeholder='Username' value={registerUsername} onChange={(e) => setRegisterUsername(e.target.value)} />
           <input type='password' className='login-input' placeholder='Password' value={registerPassword} onChange={(e) => setRegisterPassword(e.target.value)} />
-          <button className='login-button'>Sign in</button>
+          <input type='password' className='login-input' placeholder='Confirm Password'  />
+          <button className='login-button' onClick={handleRegister}>Sign up</button>
+        <div className='separator'>Log in (no password for guest)</div>
+          <input type='text' className='login-input' placeholder='Username' value={username}  onChange={(e) => setUsername(e.target.value)} />
+          <input type='password' className='login-input' placeholder='Password' value={password} onChange={(e) => setPassword(e.target.value)} />
+          <button className='login-button' onClick={handleLogin}>Sign in</button>
       </form>
       <div className='vertical-bar'></div>
     </>

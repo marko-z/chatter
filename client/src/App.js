@@ -11,6 +11,8 @@ import './App.css';
 export const socket = io('ws://localhost:3001');
 
 const App = () => {
+
+    //check for the cookie in the browser and redirect to login?
   return (
     <>
     <Router>
@@ -23,7 +25,7 @@ const App = () => {
         </div>
         <div className="sidebar"></div>
       </Route>
-      <Route path="/chat">
+      <Route exact path="/">
         <div className="sidebar" id="user-sidebar">
           <Users />
         </div>

@@ -1,19 +1,22 @@
 class Users {
     constructor() {
         this.users = [];
+        this.counter = 1;
     }
 
     addUser(userdata, guest=true) {
         /**
-         * userdata: { id, username, password }, guest: false
-         * userdata: { id, username }, guest: true
+         * userdata: { id, guest, username, password }, guest: false
+         * userdata: { id, guest, username }, guest: true
          */
-
+        let user;
         if (guest) { //Not persistent
-            this.users.push({type, username:userdata.username });
+            user = {id: this.counter++, type:userdata.type, username:userdata.username }
         } else { //Persistent
-            this.users.push({type, username:userdata.username, password: userdata.password});
+            user = {id: this.counter++, type:userdata.type, username:userdata.username, password: userdata.password}
         }
+        this.users.push(user);
+        return user;
     }
 
     getUser(id) {

@@ -2,59 +2,64 @@ const express = require('express');
 const http = require('http');
 const cors = require('cors');
 const session = require('express-session');
+
 const passport = require('passport');
-const Users = require('./data/Users');
 const bcrypt = require('bcrypt');
+
 const app = express();
-app.use(cors());
+app.use(cors()); //allow access to localhost:3001 from localhost:3000 (client)
+app.use(express.json());
 
 const server = http.createServer(app);
 const port = 3001;
 
 const io = require('socket.io')(server, {
     cors: {
-        origin: '*',
+        origin: '*', //could probably put the address of the client here. ie. http://localhost:3000, this is cors separate to app.use(cors) which applies to regular requests
         methods: ["GET", "POST"],
     }
-}); //what what exactly is the function of this?
+});
 
 //const { Server } = require('socket.io');
 //const io = new Server(server);
 
 //where the passport.use( new LocalStrategy(...)) resides
-require('./config/passport.js'); 
+//So I presume that after the following command I will have access to the users variable but also execute passport.use(...)
+const { users } = require('./config/passport.js'); 
 
 // Probably needs more configuration
 app.use(session({ 
     secret: 'someSecretCode',
-    resave: true,
+    resave: false,
     saveUninitialized: true,
+    cookie: {
+        maxAge: 1000 * 60 * 60 // 1 hour
+    }
 }));
-
-const users = new Users;
-
-//
-//next step is probably going to be accessing the body.req so that we know if we should send postive or negative information to client
-//
 
 app.use(passport.initialize());
 app.use(passport.session());
 
 app.post('/loginUser', (req, res) => { //passport.authenticate('local', { ... }) 
-    console.log('POST at /loginUser');
-    console.log(req.body);
-    // res.send(true);
-    // res.send(false);
-    
-    // I just want to send the confirmation message that the authentication was either successful or unsuccessful
-})
+    passport.authenticate('local', (err, user, info) => {
+        if (err) throw err;
+        if (user) {
+            req.logIn(user, (err) => { if (err) throw err });
+            res.send(true); //difference between logIn and login?
+        } else {
+            res.send(false);
+        }
+    });
+});
 
 //Here I will add a user to users 
-app.post('/registerUser', (req, res) => {
-    
+app.post('/registerUser', async (req, res) => {
+    console.log(req.body);
     if (!users.getUser(req.body.username)) {
-        users.addUser(req.body.username, bcrypt(req.body.password, 10));
+        const user = users.addUser({type: 'user', username: req.body.username, password: await bcrypt.hash(req.body.password, 10)});
+        req.logIn(user.id, (err) => { if (err) throw err });
         res.send(true);
+        console.log('Added user to users')
     } else {
         res.send(false);
     }
