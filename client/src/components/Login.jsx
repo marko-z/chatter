@@ -5,9 +5,12 @@ import './Login.css';
 const submitCredentials = (route, username, password) => {
   const toSend = JSON.stringify({username, password});
   console.log(`toSend: ${toSend}`)
-  return fetch('http://localhost:3001'+ route, {
+  return fetch('http://localhost:3000'+ route, { //important for the port to be the same as the client sending when using proxy
     method: 'POST',
-    headers: {'Content-Type': 'application/json'},
+    headers: {
+      'Content-Type': 'application/json',
+      // withCredentials: true, //in order to be able to save cookies from the response (?)
+    },
     body: toSend //could this be a problem at the receiving end?
   }).then(res => res.json()); //either true or false 
 }

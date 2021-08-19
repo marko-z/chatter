@@ -1,18 +1,23 @@
 const express = require('express');
 const http = require('http');
-const cors = require('cors');
+//const cors = require('cors');
 const session = require('express-session');
 
 const passport = require('passport');
 const bcrypt = require('bcrypt');
 
 const app = express();
-app.use(cors()); //allow access to localhost:3001 from localhost:3000 (client)
+// app.use(cors({
+//     origin: 'http://localhost:3000',
+//     credentials: true,
+    
+// })); //allow access to localhost:3001 (here) from localhost:3000 (client), allow storing of cookies from 3001 on 3000
 app.use(express.json());
 
 const server = http.createServer(app);
 const port = 3001;
 
+// const io = require('socket.io')(server);
 const io = require('socket.io')(server, {
     cors: {
         origin: '*', //could probably put the address of the client here. ie. http://localhost:3000, this is cors separate to app.use(cors) which applies to regular requests
@@ -20,6 +25,7 @@ const io = require('socket.io')(server, {
     }
 });
 
+//alternative import of io?
 //const { Server } = require('socket.io');
 //const io = new Server(server);
 
@@ -33,7 +39,8 @@ app.use(session({
     resave: false,
     saveUninitialized: true,
     cookie: {
-        maxAge: 1000 * 60 * 60 // 1 hour
+        maxAge: 1000 * 60 * 60, // 1 hour
+        httpOnly: false
     }
 }));
 
@@ -52,15 +59,20 @@ app.post('/loginUser', (req, res) => { //passport.authenticate('local', { ... })
     });
 });
 
-//Here I will add a user to users 
 app.post('/registerUser', async (req, res) => {
-    console.log(req.body);
-    if (!users.getUser(req.body.username)) {
-        const user = users.addUser({type: 'user', username: req.body.username, password: await bcrypt.hash(req.body.password, 10)});
-        req.logIn(user.id, (err) => { if (err) throw err });
+    //going to have to handle requests without password (adding guests)
+    if (!users.findUser(req.body.username)) {
+        const password = await bcrypt.hash(req.body.password, 10);
+        const username = req.body.username;
+        const type = 'user';
+        const user = users.addUser({type, username, password});
+        req.login(user, (err) => { if (err) throw err });
+        //Shouldn't we be sending the client a cookie with the session id?
         res.send(true);
-        console.log('Added user to users')
+        console.log('Server: Added user to users')
+        console.log(req.session); 
     } else {
+        console.log('Server: Requested username already in use')
         res.send(false);
     }
 });

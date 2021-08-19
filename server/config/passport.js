@@ -7,7 +7,7 @@ const bcrypt = require('bcrypt');
 //When do we need to use the await with bcrypt?
 
 passport.use(new LocalStrategy( (username, password, done) => {
-    const user = users.getUser(username); //So do I have to implement additional search-by-username function to users?
+    const user = users.findUser(username);
     bcrypt.compare(password, user.password, (err, same) => {
         if (err) throw err;
         if (same) {
@@ -18,11 +18,14 @@ passport.use(new LocalStrategy( (username, password, done) => {
     }) //compare input password with stored hash
 }));
 
+
+//add user to session.passport object
 passport.serializeUser((user, done) => {
     done(null, user.id);
 });
 
-passport.deserializeUser((userid, done) => { //why do we put userId here but not in serializeUser?  
+//don't quite understand the purpose of this one, is it to be able to return the user object when removing user from session?
+passport.deserializeUser((userid, done) => {
     const user = users.getUser(userid);
     done(null, user); //I understand serializeUser to add userid to the session but what purpose does this serve?
 })

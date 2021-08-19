@@ -16,11 +16,16 @@ class Users {
             user = {id: this.counter++, type:userdata.type, username:userdata.username, password: userdata.password}
         }
         this.users.push(user);
+        console.log(`Database: added user ${user}`);
         return user;
     }
 
     getUser(id) {
         return this.users.find(user => user.id === id);
+    }
+
+    findUser(username) {
+        return this.users.find(user => user.username === username);
     }
 
     removeUser(id) {
