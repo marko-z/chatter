@@ -34,18 +34,22 @@ const io = require('socket.io')(server, {
 const { users } = require('./config/passport.js'); 
 
 // Probably needs more configuration
-app.use(session({ 
+const sessionMiddleware = session({ 
     secret: 'someSecretCode',
-    resave: false,
-    saveUninitialized: true,
+    // resave: false,
+    // saveUninitialized: true,
     cookie: {
         maxAge: 1000 * 60 * 60, // 1 hour
         httpOnly: false
     }
-}));
+});
 
+
+
+app.use(sessionMiddleware); 
 app.use(passport.initialize());
 app.use(passport.session());
+
 
 app.post('/loginUser', (req, res) => { //passport.authenticate('local', { ... }) 
     passport.authenticate('local', (err, user, info) => {
@@ -71,6 +75,7 @@ app.post('/registerUser', async (req, res) => {
         res.send(true);
         console.log('Server: Added user to users')
         console.log(req.session); 
+        console.log(req.session.passport.user);
     } else {
         console.log('Server: Requested username already in use')
         res.send(false);
@@ -78,19 +83,34 @@ app.post('/registerUser', async (req, res) => {
 });
 
 //Might not need this now that I use react
-app.use(express.static(__dirname + '/public/'))
+// app.use(express.static(__dirname + '/public/'))
 
+
+//there is an issue where we get notified of the user joining when they are still on the login page
+
+io.use((socket, next) => {
+    sessionMiddleware(socket.request, {}, next) //this way, the 
+})
+
+// now we can access socket.request.session in io.on(...)
+
+
+// !!! passport not appearing inside the session object
 io.on('connection', (socket) => {
 	console.log('A user connected!');
+    // I would like the following, but unfortunately the passport property doesn't show up in session object here
+    // const user = users.getUser(socket.request.session.passport.user)
     io.emit('new message', {messageText: `${socket.id} joined the room.`, socketid: socket.id, notice: true});
-
-    io.emit('updateUserList', Array.from(io.sockets.sockets.keys())); 
+    console.log(`Server: updateUserList to be sent: ${users.getUsernames()}`);
+    io.emit('updateUserList', users.getUsernames()); // Array.from(io.sockets.sockets.keys()) for sockets
 	socket.on('disconnect', () => {
         io.emit('new message', {messageText: `${socket.id} left the room.`, socketid: socket.id, notice: true});
 		console.log('A user disconnected');
 	});
 
     socket.on('new message', (message) => {
+        console.log(socket.request.session);
+        console.log(socket.request.session.passport);
         io.emit('new message', {messageText: message, socketid: socket.id, notice: false}); 
     });
 });

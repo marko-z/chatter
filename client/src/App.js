@@ -8,6 +8,7 @@ import { io } from "socket.io-client";
 import './App.css';
 import Cookies from 'js-cookie';
 
+//can i defer this somehow? I don't want to connect to socket on the login page
 export const socket = io('ws://localhost:3001'); //what if we changed this to localhost:3000 - would we be able to remove the cors from the server?
 
 const App = () => {

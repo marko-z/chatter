@@ -61,7 +61,8 @@ const Login = () => {
       alert('Register successful');
       history.push('/');
     } else {
-      alert('User already exists. Register unsuccessful');
+      alert('User already exists. Register unsuccessful 1');
+      alert(`Received register token: ${token}`);
     }
     setRegisterUsername('');
     setRegisterPassword('');

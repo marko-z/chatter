@@ -25,7 +25,7 @@ passport.serializeUser((user, done) => {
 });
 
 //don't quite understand the purpose of this one, is it to be able to return the user object when removing user from session?
-passport.deserializeUser((userid, done) => {
+passport.deserializeUser((userid, done) => {    
     const user = users.getUser(userid);
     done(null, user); //I understand serializeUser to add userid to the session but what purpose does this serve?
 })

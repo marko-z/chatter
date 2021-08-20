@@ -28,6 +28,10 @@ class Users {
         return this.users.find(user => user.username === username);
     }
 
+    getUsernames() {
+        return this.users.map(user => { return {id: user.id, username: user.username}});
+    }
+
     removeUser(id) {
         this.users.filter(user => user.id !== id);
     }

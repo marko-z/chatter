@@ -11,13 +11,16 @@ const Users = () => {
     });
   }, []);
 
-  return (
+  if (users) {
+    return (
     <ul id="users">
       {users.map(user => {
-        return <li className="user" key={user}>{user}</li>
+        return <li className="user" key={user.id}>{user.username}</li>
       })}
     </ul>
-  );
+   );
+  }
+  
 }
 
 export default Users;
