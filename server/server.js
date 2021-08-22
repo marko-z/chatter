@@ -64,6 +64,8 @@ app.use(passport.session());
 //     sessionMiddleware(socket.request, {}, next) //this way, the 
 // });
 
+let currentUsers = [];
+
 app.post('/loginUser', (req, res) => { //passport.authenticate('local', { ... }) 
     passport.authenticate('local', (err, user, info) => {
         if (err) throw err;
@@ -78,22 +80,36 @@ app.post('/loginUser', (req, res) => { //passport.authenticate('local', { ... })
 
 app.post('/registerUser', async (req, res) => {
     //going to have to handle requests without password (adding guests)
+    
     if (!users.findUser(req.body.username)) {
-        const password = await bcrypt.hash(req.body.password, 10);
-        const username = req.body.username;
-        const type = 'user';
-        const user = users.addUser({type, username, password});
+        if (req.user) {
+            console.log('filtering out user'); 
+            currentUsers = currentUsers.filter(currentUser => currentUser.id !== req.user.id)
+        }
+        const user = users.addUser({
+            type: 'user', 
+            username: req.body.username, 
+            password: await bcrypt.hash(req.body.password, 10) 
+        });
+        currentUsers.push(user);
+
         req.login(user, (err) => { if (err) throw err });
-        //Shouldn't we be sending the client a cookie with the session id?
         res.send(true);
-        console.log('user data in app.post after register:'); 
-        console.log(req.session.passport.user);
-        console.log(req.user)
+        // console.log('user data in app.post after register:'); 
+        // console.log(req.session.passport.user);
+        // console.log(req.user)
     } else {
         console.log('Server: Requested username already in use')
         res.send(false);
     }
 });
+
+app.post('/logout', (req, res) => {
+    if (req.user) { 
+        req.logout();//would this alone delete the cookie in the client with the next response?
+        res.cookie("connect.sid", "", { expires: new Date() }); 
+    } 
+})
 
 //Might not need this now that I use react
 // app.use(express.static(__dirname + '/public/'))
@@ -119,14 +135,15 @@ io.on('connection', (socket) => {
 
     socket.on('enteredChat', () => { //alternatively implement some kind of room which the user joins when messages are rendered and it fires an updatelist event? 
 
-        console.log('user data in socket.io')
-        console.log(socket.request.user);
-        console.log(socket.request.session.passport?.user);  
+        // console.log('user data in socket.io')
+        // console.log(socket.request.user);
+        // console.log(socket.request.session.passport?.user);  
         const username = socket.request.user?.username;
-        if (username) {
+        if (username) { //means user logged into session
             console.log(`User ${username} entered chat`)
             socket.broadcast.emit('new message', {messageText: `${username} joined the room.`, username, className: 'notice'});
-            io.emit('updateUserList', users.getUsernames()); // Array.from(io.sockets.sockets.keys()) for sockets
+            console.log(`(to send) currentUsers: ${currentUsers}`)
+            io.emit('updateUserList', currentUsers); // Array.from(io.sockets.sockets.keys()) for sockets
         }
     });
 

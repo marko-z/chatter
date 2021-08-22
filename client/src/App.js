@@ -17,6 +17,7 @@ const App = () => {
   if (!Cookies.get('connect.sid')) { //important that the connect.sid has httpOnly attribute set to false otherwise it won't be exposed to javascript
     return <Login />;
   }
+  
   return (
     <>
     <Router>
