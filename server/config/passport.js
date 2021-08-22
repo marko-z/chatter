@@ -19,15 +19,15 @@ passport.use(new LocalStrategy( (username, password, done) => {
 }));
 
 
-//add user to session.passport object
+//add user id to request.session.passport object
 passport.serializeUser((user, done) => {
     done(null, user.id);
 });
 
-//don't quite understand the purpose of this one, is it to be able to return the user object when removing user from session?
+//retrieve id from request.session.passport, look up in database and save to request.user
 passport.deserializeUser((userid, done) => {    
     const user = users.getUser(userid);
-    done(null, user); //I understand serializeUser to add userid to the session but what purpose does this serve?
+    done(null, user);
 })
 
 module.exports.users = users;

@@ -21,7 +21,9 @@ class Users {
     }
 
     getUser(id) {
-        return this.users.find(user => user.id === id);
+        if (id) {
+            return this.users.find(user => user.id === id);
+        }
     }
 
     findUser(username) {

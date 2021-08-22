@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import './InputBox.css';
-import { socket } from "../App";
+import { socket } from "./Messages";
 import { FaPaperPlane } from "react-icons/fa";
 
 const InputBox = () => {
