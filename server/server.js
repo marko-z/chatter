@@ -68,9 +68,6 @@ let currentUsers = [];
 
 app.post('/loginUser', (req, res, next) => { //passport.authenticate('local', { ... }) 
     passport.authenticate('local', (err, user, info) => {
-        //removing current user from list of active users, not from session as that will be replaced after login anyway
-        if (req.user) { currentUsers = currentUsers.filter(currentUser => currentUser.id !== req.user.id) }
-
         if (err) throw err;
 
         console.log(info.message);
@@ -88,10 +85,7 @@ app.post('/registerUser', async (req, res) => {
     //going to have to handle requests without password (adding guests)
     
     if (!users.findUser(req.body.username)) {
-        if (req.user) {
-            console.log('filtering out user'); 
-            currentUsers = currentUsers.filter(currentUser => currentUser.id !== req.user.id)
-        }
+ 
         const user = users.addUser({
             username: req.body.username, 
             password: await bcrypt.hash(req.body.password, 10) 
@@ -149,6 +143,15 @@ io.on('connection', (socket) => {
             socket.broadcast.emit('new message', {messageText: `${username} joined the room.`, username, className: 'notice'});
             console.log(`(to send) currentUsers: ${currentUsers}`)
             io.emit('updateUserList', currentUsers); // Array.from(io.sockets.sockets.keys()) for sockets
+        }
+    });
+
+    socket.on('logout', () => {
+        console.log('socket logout')
+            if (socket.request.user) {
+            //cookie itself removed by client-side
+            currentUsers = currentUsers.filter(user => user.id !== socket.request.user.id)
+            socket.request.logout();
         }
     });
 

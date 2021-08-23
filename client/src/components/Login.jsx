@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
+import Cookies from 'js-cookie';
 import './Login.css';
+import { socket } from './Messages'; // does this run the code in messages everytime it's imported?
 
 const submitCredentials = (route, username, password) => {
   const toSend = JSON.stringify({username, password});
@@ -21,6 +23,15 @@ const Login = () => {
   const [registerUsername, setRegisterUsername] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
   const history = useHistory();
+
+  useEffect( () => {
+    if (Cookies.get('connect.sid')) { //Will this evaluate to false?
+      console.log('Sending logout event and clearing cookie');
+      socket.emit('logout');
+      Cookies.remove('connect.sid'); //this probably won't work (because we have to add more details?)
+    }
+  }, []);
+
 
   useEffect(() => {
     if (registerUsername || registerPassword) {
