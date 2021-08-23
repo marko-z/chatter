@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Route, useHistory } from 'react-router-dom';
 import Users from "./components/Users";
 import Login from './components/Login';
 import Messages from "./components/Messages";
@@ -13,10 +13,11 @@ import Cookies from 'js-cookie';
 
 const App = () => {
     //check for the cookie in the browser and redirect to login?
-  
+  const history = useHistory();
+
   if (!Cookies.get('connect.sid')) { //important that the connect.sid has httpOnly attribute set to false otherwise it won't be exposed to javascript
     console.log('no cookie so serving login')
-    return <Login />;
+    history.push('/login');
   }
   
   return (
