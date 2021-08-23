@@ -66,16 +66,22 @@ app.use(passport.session());
 
 let currentUsers = [];
 
-app.post('/loginUser', (req, res) => { //passport.authenticate('local', { ... }) 
+app.post('/loginUser', (req, res, next) => { //passport.authenticate('local', { ... }) 
     passport.authenticate('local', (err, user, info) => {
+        //removing current user from list of active users, not from session as that will be replaced after login anyway
+        if (req.user) { currentUsers = currentUsers.filter(currentUser => currentUser.id !== req.user.id) }
+
         if (err) throw err;
+
+        console.log(info.message);
+
         if (user) {
-            req.logIn(user, (err) => { if (err) throw err });
-            res.send(true); //difference between logIn and login?
+            req.logIn(user, (err) => { if (err) throw err }); //login and logIn are aliases
+            res.send(true); 
         } else {
             res.send(false);
         }
-    });
+    })(req,res,next); // (req,res,next) important
 });
 
 app.post('/registerUser', async (req, res) => {
@@ -87,10 +93,9 @@ app.post('/registerUser', async (req, res) => {
             currentUsers = currentUsers.filter(currentUser => currentUser.id !== req.user.id)
         }
         const user = users.addUser({
-            type: 'user', 
             username: req.body.username, 
             password: await bcrypt.hash(req.body.password, 10) 
-        });
+        }, guest=false);
         currentUsers.push(user);
 
         req.login(user, (err) => { if (err) throw err });

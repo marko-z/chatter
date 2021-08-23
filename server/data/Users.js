@@ -11,9 +11,9 @@ class Users {
          */
         let user;
         if (guest) { //Not persistent
-            user = {id: this.counter++, type:userdata.type, username:userdata.username }
+            user = {id: this.counter++, type:'guest', username:userdata.username }
         } else { //Persistent
-            user = {id: this.counter++, type:userdata.type, username:userdata.username, password: userdata.password}
+            user = {id: this.counter++, type:'user', username:userdata.username, password: userdata.password}
         }
         this.users.push(user);
         console.log(`Database: added user ${user}`);
