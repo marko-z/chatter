@@ -50,6 +50,7 @@ const Login = () => {
     if (auth) {
       alert('Login successful');
       history.push('/');
+      window.location.reload(); //interesting that it doesn't work the other way around (i.e history push after reload)
     } else {
       alert('Login unsuccessful');
       // How can I implement an alert appearing at the bottom
@@ -71,6 +72,7 @@ const Login = () => {
     if (token) {
       alert('Register successful');
       history.push('/');
+      window.location.reload();
     } else {
       alert('User already exists. Register unsuccessful 1');
       alert(`Received register token: ${token}`);

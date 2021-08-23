@@ -66,6 +66,7 @@ app.use(passport.session());
 
 let currentUsers = [];
 
+// I don't think I know how to refresh the socket object other than refreshing the page in the client 
 app.post('/loginUser', (req, res, next) => { //passport.authenticate('local', { ... }) 
     passport.authenticate('local', (err, user, info) => {
         if (err) throw err;
@@ -74,6 +75,7 @@ app.post('/loginUser', (req, res, next) => { //passport.authenticate('local', { 
 
         if (user) {
             req.logIn(user, (err) => { if (err) throw err }); //login and logIn are aliases
+            currentUsers.push(user);
             res.send(true); 
         } else {
             res.send(false);
@@ -103,18 +105,12 @@ app.post('/registerUser', async (req, res) => {
     }
 });
 
-app.post('/logout', (req, res) => {
-    if (req.user) { 
-        req.logout();//would this alone delete the cookie in the client with the next response?
-        res.cookie("connect.sid", "", { expires: new Date() }); 
-    } 
-})
-
-//Might not need this now that I use react
-// app.use(express.static(__dirname + '/public/'))
-
-
-//there is an issue where we get notified of the user joining when they are still on the login page
+// app.post('/logout', (req, res) => {
+//     if (req.user) { 
+//         req.logout();//would this alone delete the cookie in the client with the next response?
+//         res.cookie("connect.sid", "", { expires: new Date() }); 
+//     } 
+// })
 
 const wrap = middleware => (socket, next) => middleware(socket.request, {}, next);
 
@@ -128,7 +124,10 @@ io.use(wrap(passport.session()));
 
 //!!! After we fix the issue above we want to add message logging into the database
 
-// !!! passport not appearing inside the session object, the session object doesn't update (even after reconnect)
+// PROBLEM: session.passport.user / user not appearing in socket.request even after refresh
+// SOLUTION: check that the socket.io from client connects to 3000 (and so to 3001 via proxy) and not 3001 (not sure why 
+// it doesn't populate it this way but hey)
+
 io.on('connection', (socket) => {
     console.log('Socket connection');
 

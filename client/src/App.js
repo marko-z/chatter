@@ -15,6 +15,7 @@ const App = () => {
     //check for the cookie in the browser and redirect to login?
   
   if (!Cookies.get('connect.sid')) { //important that the connect.sid has httpOnly attribute set to false otherwise it won't be exposed to javascript
+    console.log('no cookie so serving login')
     return <Login />;
   }
   
