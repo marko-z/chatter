@@ -11,12 +11,18 @@ const Messages = () => {
   
   const [messages, setMessages] = useState([]); 
   
+
+  //we might be in trouble if the socket disconnects in this element, since the listeners are only attached once, upon render
   useEffect(() => {
     
     socket.emit('enteredChat');
     socket.on('new message', ({className, messageText, username }) => {
       setMessages(messages => [...messages, {className, messageText, username}]);
     });
+
+    socket.on('updateMessageList', messageList => {
+      setMessages(messageList);
+    })
   }, []);
 
 

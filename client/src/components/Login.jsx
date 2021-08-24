@@ -26,7 +26,7 @@ const Login = () => {
 
   useEffect( () => {
     if (Cookies.get('connect.sid')) { //Will this evaluate to false?
-      console.log('Sending logout event and clearing cookie');
+      console.log('Clearing client-side user data and sending request to clear session');
       socket.emit('logout');
       Cookies.remove('connect.sid'); //this probably won't work (because we have to add more details?)
     }

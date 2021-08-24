@@ -65,6 +65,7 @@ app.use(passport.session());
 // });
 
 let currentUsers = [];
+let messageList = [];
 
 // I don't think I know how to refresh the socket object other than refreshing the page in the client 
 app.post('/loginUser', (req, res, next) => { //passport.authenticate('local', { ... }) 
@@ -131,7 +132,9 @@ io.use(wrap(passport.session()));
 io.on('connection', (socket) => {
     console.log('Socket connection');
 
-    socket.on('enteredChat', () => { //alternatively implement some kind of room which the user joins when messages are rendered and it fires an updatelist event? 
+    //Might not be that great of a solution if the socket disconnects when in messages component, as it might
+    //no longer be able to receive events
+    socket.on('enteredChat', () => {  
 
         // console.log('user data in socket.io')
         // console.log(socket.request.user);
@@ -142,12 +145,14 @@ io.on('connection', (socket) => {
             socket.broadcast.emit('new message', {messageText: `${username} joined the room.`, username, className: 'notice'});
             console.log(`(to send) currentUsers: ${currentUsers}`)
             io.emit('updateUserList', currentUsers); // Array.from(io.sockets.sockets.keys()) for sockets
+            io.emit('updateMessageList', messageList);
         }
+
     });
 
     socket.on('logout', () => {
-        console.log('socket logout')
-            if (socket.request.user) {
+        console.log('socket logout');
+        if (socket.request.user) {
             //cookie itself removed by client-side
             currentUsers = currentUsers.filter(user => user.id !== socket.request.user.id)
             socket.request.logout();
