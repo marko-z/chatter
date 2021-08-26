@@ -143,17 +143,20 @@ io.on('connection', (socket) => {
         if (username) { //means user logged into session
             console.log(`User ${username} entered chat`)
             socket.broadcast.emit('new message', {messageText: `${username} joined the room.`, username, className: 'notice'});
-            console.log(`(to send) currentUsers: ${currentUsers}`)
+            console.log(socket.request.user);
             io.emit('updateUserList', currentUsers); // Array.from(io.sockets.sockets.keys()) for sockets
             io.emit('updateMessageList', messageList);
         }
 
     });
 
-    socket.on('logout', () => {
-        console.log('socket logout');
+    socket.on('enteredLogin', () => {
+        console.log('a')
+        console.log(socket.request.user);
+        console.log(socket.request.session);
         if (socket.request.user) {
             //cookie itself removed by client-side
+            console.log('b');
             currentUsers = currentUsers.filter(user => user.id !== socket.request.user.id)
             socket.request.logout();
         }

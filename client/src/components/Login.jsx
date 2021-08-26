@@ -25,11 +25,10 @@ const Login = () => {
   const history = useHistory();
 
   useEffect( () => {
-    if (Cookies.get('connect.sid')) { //Will this evaluate to false?
-      console.log('Clearing client-side user data and sending request to clear session');
-      socket.emit('logout');
+    if (Cookies.get('connect.sid')) {
       Cookies.remove('connect.sid'); //this probably won't work (because we have to add more details?)
     }
+    socket.emit('enteredLogin');
   }, []);
 
 
