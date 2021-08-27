@@ -6,8 +6,8 @@ class Users {
 
     addUser(userdata, guest=true) {
         /**
-         * userdata: { id, guest, username, password }, guest: false
-         * userdata: { id, guest, username }, guest: true
+         * userdata = { id, guest, username, password }, guest: false
+         * userdata = { id, guest, username }, guest: true
          */
         let user;
         if (guest) { //Not persistent

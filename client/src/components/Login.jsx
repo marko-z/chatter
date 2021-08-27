@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import Cookies from 'js-cookie';
 import './Login.css';
 import { socket } from './Messages'; // does this run the code in messages everytime it's imported?
 
@@ -24,11 +23,16 @@ const Login = () => {
   const [registerPassword, setRegisterPassword] = useState('');
   const history = useHistory();
 
-  useEffect( () => {
-    if (Cookies.get('connect.sid')) {
-      Cookies.remove('connect.sid'); //this probably won't work (because we have to add more details?)
-    }
-    socket.emit('enteredLogin');
+  useEffect( async () => {
+    // if (Cookies.get('connect.sid')) {
+    //   Cookies.remove('connect.sid'); 
+    // }
+
+    //How do I remove the cookies from the client using the response from the server?
+    console.log('Sending logout request') 
+    await fetch('/logout', {
+      method: 'POST',
+    });
   }, []);
 
 

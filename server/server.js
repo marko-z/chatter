@@ -2,7 +2,6 @@ const express = require('express');
 const http = require('http');
 //const cors = require('cors');
 const session = require('express-session');
-
 const passport = require('passport');
 const bcrypt = require('bcrypt');
 
@@ -37,6 +36,7 @@ const io = require('socket.io')(server);
 //where the passport.use( new LocalStrategy(...)) resides
 //So I presume that after the following command I will have access to the users variable but also execute passport.use(...)
 const { users } = require('./config/passport.js'); 
+const Cookies = require('cookies');
 
 // Probably needs more configuration
 let sessionMiddleware = session({ 
@@ -106,12 +106,15 @@ app.post('/registerUser', async (req, res) => {
     }
 });
 
-// app.post('/logout', (req, res) => {
-//     if (req.user) { 
-//         req.logout();//would this alone delete the cookie in the client with the next response?
-//         res.cookie("connect.sid", "", { expires: new Date() }); 
-//     } 
-// })
+app.post('/logout', (req, res) => {
+    if (req.user) { 
+        currentUsers = currentUsers.filter(user => user.id !== req.user.id); //is this operation in-place?
+        req.logout();//would this alone delete the cookie in the client with the next response? --> no.
+    } 
+    console.log('deleting cookie');
+    res.cookie("connect.sid", "", { expires: new Date(0) });
+    res.send();
+})
 
 const wrap = middleware => (socket, next) => middleware(socket.request, {}, next);
 
@@ -150,17 +153,16 @@ io.on('connection', (socket) => {
 
     });
 
-    socket.on('enteredLogin', () => {
-        console.log('a')
-        console.log(socket.request.user);
-        console.log(socket.request.session);
-        if (socket.request.user) {
-            //cookie itself removed by client-side
-            console.log('b');
-            currentUsers = currentUsers.filter(user => user.id !== socket.request.user.id)
-            socket.request.logout();
-        }
-    });
+    // socket.on('enteredLogin', () => {
+    //     //no need to logout here if the client removed its own cookie - passport data automatically removed from session
+    //     //but then how am I supposed to know who to remove? Is there a way of connecting the user in currentUsers to a particular
+    //     //session? Or is removing the cookie from the server the only way?
+    //     if (socket.request.user) {
+    //         currentUsers = currentUsers.filter(user => user.id !== socket.request.user.id)
+    //         socket.request.logout();
+    //         Cookies.set 
+    //     }
+    // });
 
     socket.on('new message', (messageText) => {
         // const username = users.getUser(socket.handshake.session.passport?.user);
