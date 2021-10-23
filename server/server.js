@@ -12,8 +12,8 @@ const app = express();
 //     origin: 'http://localhost:3000',
 //     credentials: true,
     
-// })); //allow access to localhost:3001 (here) from localhost:3000 (client), allow storing of cookies from 3001 on 3000
-//not needed as we are using proxy
+// })); //allow access to localhost:3001 (here) from localhost:3000 (client),
+// allow storing of cookies from 3001 on 3000 BUT: not needed as we are using proxy
 
 app.use(express.json());
 
@@ -33,8 +33,10 @@ const io = require('socket.io')(server);
 //const { Server } = require('socket.io');
 //const io = new Server(server);
 
-//where the passport.use( new LocalStrategy(...)) resides
-//So I presume that after the following command I will have access to the users variable but also execute passport.use(...)
+// where the passport.use( new LocalStrategy(...)) resides
+// So I presume that after the following command I will have access to the users
+// variable but also execute passport.use(...)
+
 const { users } = require('./config/passport.js'); 
 const Cookies = require('cookies');
 
@@ -67,12 +69,10 @@ app.use(passport.session());
 let currentUsers = [];
 let messageList = [];
 
-// I don't think I know how to refresh the socket object other than refreshing the page in the client 
+// To refresh the socket I refresh the client - is there a way to do it from server-side only?
 app.post('/loginUser', (req, res, next) => { //passport.authenticate('local', { ... }) 
     passport.authenticate('local', (err, user, info) => {
         if (err) throw err;
-
-        console.log(info.message);
 
         if (user) {
             req.logIn(user, (err) => { if (err) throw err }); //login and logIn are aliases
@@ -93,13 +93,14 @@ app.post('/registerUser', async (req, res) => {
             username: req.body.username, 
             password: await bcrypt.hash(req.body.password, 10) 
         }, guest=false);
+
         currentUsers.push(user);
 
-        req.login(user, (err) => { if (err) throw err });
-        res.send(true);
-        // console.log('user data in app.post after register:'); 
-        // console.log(req.session.passport.user);
-        // console.log(req.user)
+        req.login(user, (err) => { 
+            if (err) throw err 
+            res.send(true);
+        });
+        
     } else {
         console.log('Server: Requested username already in use')
         res.send(false);
@@ -108,12 +109,15 @@ app.post('/registerUser', async (req, res) => {
 
 app.post('/logout', (req, res) => {
     if (req.user) { 
-        currentUsers = currentUsers.filter(user => user.id !== req.user.id); //is this operation in-place?
-        req.logout();//would this alone delete the cookie in the client with the next response? --> no.
-    } 
-    console.log('deleting cookie');
-    res.cookie("connect.sid", "", { expires: new Date(0) });
-    res.send();
+        console.log('/logout: req.user exists');
+
+         //is this operation in-place?
+        currentUsers = currentUsers.filter(user => user.id !== req.user.id);
+        //would this alone delete the cookie in the client with the next response? --> no.
+        req.logout();
+    } else {
+        console.log('/logout: req.user does not exist');
+    }
 })
 
 const wrap = middleware => (socket, next) => middleware(socket.request, {}, next);
@@ -123,20 +127,22 @@ io.use(wrap(passport.initialize()));
 io.use(wrap(passport.session()));
 
 
-// !!! we want to implement middleware that checks if the user is stored in the socket.request.session object
-// For now I will just check for the socket.request.session.user object at every request
+// !!! we want to implement middleware that checks if the user is stored in the
+// socket.request.session object For now I will just check for the
+// socket.request.session.user object at every request
 
 //!!! After we fix the issue above we want to add message logging into the database
 
-// PROBLEM: session.passport.user / user not appearing in socket.request even after refresh
-// SOLUTION: check that the socket.io from client connects to 3000 (and so to 3001 via proxy) and not 3001 (not sure why 
-// it doesn't populate it this way but hey)
+// PROBLEM: session.passport.user / user not appearing in socket.request even
+// after refresh SOLUTION: check that the socket.io from client connects to 3000
+// (and so to 3001 via proxy) and not 3001 (not sure why it doesn't populate it
+// this way but hey)
 
 io.on('connection', (socket) => {
     console.log('Socket connection');
 
-    //Might not be that great of a solution if the socket disconnects when in messages component, as it might
-    //no longer be able to receive events
+    //Might not be that great of a solution if the socket disconnects when in
+    //messages component, as it might no longer be able to receive events
     socket.on('enteredChat', () => {  
 
         // console.log('user data in socket.io')
@@ -144,10 +150,11 @@ io.on('connection', (socket) => {
         // console.log(socket.request.session.passport?.user);  
         const username = socket.request.user?.username;
         if (username) { //means user logged into session
-            console.log(`User ${username} entered chat`)
-            socket.broadcast.emit('new message', {messageText: `${username} joined the room.`, username, className: 'notice'});
-            console.log(socket.request.user);
-            io.emit('updateUserList', currentUsers); // Array.from(io.sockets.sockets.keys()) for sockets
+            socket.broadcast.emit('new message', {
+                messageText: `${username} joined the room.`, username, className: 'notice'
+            });
+            // Array.from(io.sockets.sockets.keys()) for sockets
+            io.emit('updateUserList', currentUsers); 
             io.emit('updateMessageList', messageList);
         }
 

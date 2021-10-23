@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import './Login.css';
+import Cookies from "js-cookie";
 import { socket } from './Messages'; // does this run the code in messages everytime it's imported?
 
 const submitCredentials = (route, username, password) => {
   const toSend = JSON.stringify({username, password});
   console.log(`toSend: ${toSend}`)
-  return fetch('http://localhost:3000'+ route, { //important for the port to be the same as the client sending when using proxy
+  return fetch('http://localhost:3000'+ route, { 
+    //important for the port to be the same as the client sending when using proxy
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -23,19 +25,22 @@ const Login = () => {
   const [registerPassword, setRegisterPassword] = useState('');
   const history = useHistory();
 
-  useEffect( async () => {
-    // if (Cookies.get('connect.sid')) {
-    //   Cookies.remove('connect.sid'); 
-    // }
-
-    //How do I remove the cookies from the client using the response from the server?
-    console.log('Sending logout request') 
-    await fetch('/logout', {
+  //immediate logout request upon login
+  useEffect(() => {
+    const response = fetch('/logout', {
       method: 'POST',
-    });
-  }, []);
+    })
+    // if (response) { 
+    //   Cookies.remove('connect.sid');
+    //   console.log('Client: removed cookie'); 
+    // }; 
+    //apparently can't put fetch(...).then(Cookies.remove('connect.sid'));
+    //because that will prematurely log us off on the server for some reason
+  }, []); //[] means once upon load?
 
 
+  // Delete either username & password or registerUsername & registerPassword if the
+  // user starts typin in other fields.
   useEffect(() => {
     if (registerUsername || registerPassword) {
       setUsername('');
@@ -56,8 +61,8 @@ const Login = () => {
       window.location.reload(); //interesting that it doesn't work the other way around (i.e history push after reload)
     } else {
       alert('Login unsuccessful');
-      // How can I implement an alert appearing at the bottom
-      // Saying that the login failed 
+      // TODO: Alert temporarily appearing on the bottom informing the user
+      // if the attempt was successful or unsuccessful. 
     }
 
     setUsername('');
@@ -67,6 +72,7 @@ const Login = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
     if (registerUsername === '' || registerPassword === '') {
+      // TODO: again have this as a temporary message box
       alert('All fields are required');
       return;
     }
@@ -77,8 +83,9 @@ const Login = () => {
       history.push('/');
       window.location.reload();
     } else {
+      // The client should probably not be assuming that 'user exists'
+      // Simply because the request was rejected?
       alert('User already exists. Register unsuccessful 1');
-      alert(`Received register token: ${token}`);
     }
     setRegisterUsername('');
     setRegisterPassword('');
@@ -90,14 +97,22 @@ const Login = () => {
       <form id='login'>
         <div className='separator'>Sign up</div>
           <input type='text' className='login-input' placeholder='Username' value={registerUsername} onChange={(e) => setRegisterUsername(e.target.value)} />
+
           <input type='password' className='login-input' placeholder='Password' value={registerPassword} onChange={(e) => setRegisterPassword(e.target.value)} />
+
           <input type='password' className='login-input' placeholder='Confirm Password'  />
+          
           <button className='login-button' onClick={handleRegister}>Sign up</button>
+
         <div className='separator'>Log in (no password for guest)</div>
+
           <input type='text' className='login-input' placeholder='Username' value={username}  onChange={(e) => setUsername(e.target.value)} />
+
           <input type='password' className='login-input' placeholder='Password' value={password} onChange={(e) => setPassword(e.target.value)} />
+
           <button className='login-button' onClick={handleLogin}>Sign in</button>
       </form>
+
       <div className='vertical-bar'></div>
     </>
   )

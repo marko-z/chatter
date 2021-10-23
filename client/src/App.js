@@ -10,12 +10,13 @@ import Cookies from 'js-cookie';
 
 //can i defer this somehow? I don't want to connect to socket on the login page
 // export const socket = io('ws://localhost:3001'); //what if we changed this to localhost:3000 - would we be able to remove the cors from the server?
-
+// YES -> don't use the socket here
 const App = () => {
     //check for the cookie in the browser and redirect to login?
   const history = useHistory();
 
-  if (!Cookies.get('connect.sid')) { //important that the connect.sid has httpOnly attribute set to false otherwise it won't be exposed to javascript
+  if (!Cookies.get('connect.sid')) { 
+    //TODO: need to change this implemenation badly (shouldn't rely on disabled http-only)
     console.log('no cookie so serving login')
     history.push('/login');
   }
