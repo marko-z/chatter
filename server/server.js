@@ -18,7 +18,7 @@ const app = express();
 app.use(express.json());
 
 const server = http.createServer(app);
-const port = 3001;
+const port = process.env.PORT || 3001;
 
 const io = require('socket.io')(server);
 // don't do the approach below, instead use proxy and send socket.io messages to 3000 (i.e address of the client)
