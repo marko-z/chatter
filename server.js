@@ -37,6 +37,13 @@ const io = require('socket.io')(server);
 // So I presume that after the following command I will have access to the users
 // variable but also execute passport.use(...)
 
+if (process.env.NODE_ENV === "production") {
+    app.use(express.static("build")); //so do I include NODE_ENV=production in Procfile or?
+    app.get("/", (req, res) => {
+        res.sendFile(path.resolve(__dirname, "build", "index.html"));
+    });
+}
+
 const { users } = require('./config/passport.js'); 
 const Cookies = require('cookies');
 
@@ -189,9 +196,9 @@ io.on('connection', (socket) => {
   
 });
 
-app.get('/', (req, res) => {
-	res.sendFile(__dirname + '/public/index.html');
-});
+// app.get('/', (req, res) => {
+// 	res.sendFile(__dirname + '/public/index.html');
+// });
 
 server.listen(port, () => {
 	console.log(`Listening on ${port}`);
