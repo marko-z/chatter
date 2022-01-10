@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import './Messages.css';
 import Message from "./Message";
 import { io } from "socket.io-client";
-export const socket = io('ws://localhost:3000');
+export const socket = io();
 
 const Messages = ({ user }) => {
   const [messages, setMessages] = useState([]);

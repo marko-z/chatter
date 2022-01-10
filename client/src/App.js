@@ -17,7 +17,7 @@ const App = () => {
 
     // checking cookie validity
     const checkCookie = async () => {
-      return fetch('http://localhost:3000/vibecheck', {
+      return fetch('/vibecheck', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

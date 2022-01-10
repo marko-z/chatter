@@ -16,6 +16,7 @@ const io = require('socket.io')(server);
 // const io = new Server(server);
 
 if (process.env.NODE_ENV === "production") {
+  console.log('Production..')
   //so do I include NODE_ENV=production in Procfile or?
   app.use(express.static("build"));
   app.get("/", (req, res) => {
@@ -31,7 +32,7 @@ let sessionMiddleware = session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    maxAge: 1000 * 20, // 20 seconds
+    maxAge: 1000 * 60, // 20 seconds
     httpOnly: true,
   }
 });

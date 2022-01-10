@@ -5,7 +5,7 @@ import './Login.css';
 const submitCredentials = (route, username, password) => {
   const toSend = JSON.stringify({username, password});
   console.log(`toSend: ${toSend}`)
-  return fetch('http://localhost:3000'+ route, { 
+  return fetch(route, { 
     //important for the port to be the same as the client sending when using proxy
     method: 'POST',
     headers: {
