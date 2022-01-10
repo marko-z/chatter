@@ -1,6 +1,6 @@
 import React from "react";
 import './Message.css'
-import _uniqueId from 'lodash/uniqueId'; //let's see if this is 
+import _uniqueId from 'lodash/uniqueId'; 
 
 const Message = ({
   messageText,

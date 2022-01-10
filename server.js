@@ -1,19 +1,9 @@
 const express = require('express');
 const http = require('http');
-//const cors = require('cors');
 const session = require('express-session');
 const passport = require('passport');
 const bcrypt = require('bcrypt');
-
-// const sharedSession = require('express-socket.io-session');
-
 const app = express();
-// app.use(cors({
-//     origin: 'http://localhost:3000',
-//     credentials: true,
-    
-// })); //allow access to localhost:3001 (here) from localhost:3000 (client),
-// allow storing of cookies from 3001 on 3000 BUT: not needed as we are using proxy
 
 app.use(express.json());
 
@@ -21,44 +11,32 @@ const server = http.createServer(app);
 const port = process.env.PORT || 3001;
 
 const io = require('socket.io')(server);
-// don't do the approach below, instead use proxy and send socket.io messages to 3000 (i.e address of the client)
-// const io = require('socket.io')(server, {
-//     cors: {
-//         origin: '*', //could probably put the address of the client here. ie. http://localhost:3000, this is cors separate to app.use(cors) which applies to regular requests
-//         methods: ["GET", "POST"],
-//     }
-// });
-
-//alternative import of io?
-//const { Server } = require('socket.io');
-//const io = new Server(server);
-
-// where the passport.use( new LocalStrategy(...)) resides
-// So I presume that after the following command I will have access to the users
-// variable but also execute passport.use(...)
+//alternative?
+// const { Server } = require('socket.io');
+// const io = new Server(server);
 
 if (process.env.NODE_ENV === "production") {
-    app.use(express.static("build")); //so do I include NODE_ENV=production in Procfile or?
-    app.get("/", (req, res) => {
-        res.sendFile(path.resolve(__dirname, "build", "index.html"));
-    });
+  //so do I include NODE_ENV=production in Procfile or?
+  app.use(express.static("build"));
+  app.get("/", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "build", "index.html"));
+  });
 }
 
-const { users } = require('./config/passport.js'); 
-const Cookies = require('cookies');
+const { users } = require('./config/passport.js');
 
-// Probably needs more configuration
-let sessionMiddleware = session({ 
-    secret: 'someSecretCode',
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-        maxAge: 1000 * 60 * 60, // 1 hour
-        httpOnly: false
-    }
+// Probably needs more configuration.
+let sessionMiddleware = session({
+  secret: 'someSecretCode',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    maxAge: 1000 * 20, // 20 seconds
+    httpOnly: true,
+  }
 });
 
-app.use(sessionMiddleware); 
+app.use(sessionMiddleware);
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -68,132 +46,135 @@ app.use(passport.session());
 // }));
 
 
-// Method below doens't want to update the session object used by socket io after authentication
+// Method below doesn't want to update the session object used by socket io after authentication
 // io.use((socket, next) => {
-//     sessionMiddleware(socket.request, {}, next) //this way, the 
+//     sessionMiddleware(socket.request, {}, next) 
 // });
 
-let currentUsers = [];
-let messageList = [];
 
 // To refresh the socket I refresh the client - is there a way to do it from server-side only?
 app.post('/loginUser', (req, res, next) => { //passport.authenticate('local', { ... }) 
-    passport.authenticate('local', (err, user, info) => {
-        if (err) throw err;
+  passport.authenticate('local', (err, user, info) => {
+    if (err) throw err;
 
-        if (user) {
-            req.logIn(user, (err) => { if (err) throw err }); //login and logIn are aliases
-            currentUsers.push(user);
-            res.send(true); 
-        } else {
-            res.send(false);
-        }
-    })(req,res,next); // (req,res,next) important
+    if (user) {
+      req.logIn(user, (err) => { if (err) throw err }); //login and logIn are aliases
+      res.send(true);
+    } else {
+      res.send(false);
+    }
+  })(req, res, next); // (req,res,next) important
 });
 
 app.post('/registerUser', async (req, res) => {
-    //going to have to handle requests without password (adding guests)
-    
-    if (!users.findUser(req.body.username)) {
- 
-        const user = users.addUser({
-            username: req.body.username, 
-            password: await bcrypt.hash(req.body.password, 10) 
-        }, guest=false);
+  if (!users.findUser(req.body.username)) {
+    const user = users.addUser({
+      username: req.body.username,
+      password: await bcrypt.hash(req.body.password, 10)
+    }, guest = false);
 
-        currentUsers.push(user);
+    req.login(user, (err) => {
+      if (err) throw err
+      res.send(true);
+    });
 
-        req.login(user, (err) => { 
-            if (err) throw err 
-            res.send(true);
-        });
-        
-    } else {
-        console.log('Server: Requested username already in use')
-        res.send(false);
-    }
+  } else {
+    console.log('Server: Requested username already in use')
+    res.send(false);
+  }
 });
 
 app.post('/logout', (req, res) => {
-    if (req.user) { 
-        console.log('/logout: req.user exists');
-
-         //is this operation in-place?
-        currentUsers = currentUsers.filter(user => user.id !== req.user.id);
-        //would this alone delete the cookie in the client with the next response? --> no.
-        req.logout();
-    } else {
-        console.log('/logout: req.user does not exist');
-    }
+  if (req.user) {
+    console.log('/logout: req.user exists');
+    userList = userList.filter(user => user.id !== req.user.id);
+    //would this alone delete the cookie in the client with the next response? --> no.
+    req.logout();
+  } else {
+    console.log('/logout: req.user does not exist');
+  }
+  req.session.destroy();
 })
 
-const wrap = middleware => (socket, next) => middleware(socket.request, {}, next);
+app.get('/vibecheck', (req, res) => {
+  // req.session.id will be populated if the incoming cookie matched an id in
+  // the MemoryStore
+  // similarly, passport populated req.user with relevant information specified
+  // in passport.js, and will only be available if the cookie matched an entry
+  // in the MemoryStore 
+  
+  if (req.user) { 
+    res.send('gachiAPPROVE');
+  } else {
+    res.status(401);
+    res.send();
+  }
+})
 
-io.use(wrap(sessionMiddleware));
-io.use(wrap(passport.initialize()));
-io.use(wrap(passport.session()));
-
-
-// !!! we want to implement middleware that checks if the user is stored in the
-// socket.request.session object For now I will just check for the
-// socket.request.session.user object at every request
-
-//!!! After we fix the issue above we want to add message logging into the database
-
-// PROBLEM: session.passport.user / user not appearing in socket.request even
-// after refresh SOLUTION: check that the socket.io from client connects to 3000
-// (and so to 3001 via proxy) and not 3001 (not sure why it doesn't populate it
-// this way but hey)
+// Could lead to a memory leak (only way users are removed from userList is
+// through 'disconnect' event of the relevant socket). We don't cary about any
+// cookie expiry.
+let userList = [];
+let messageList = [];
 
 io.on('connection', (socket) => {
-    console.log('Socket connection');
+  socket.on('enteredChat', (username) => {
+    // socket.data.username = username; // no point in saving the username information as it will disappear anyway
+    const message = { className: 'notice', username: username, messageText: `${username} entered` }
+    // every client updated with new message
+    io.emit('new message', message);
 
-    //Might not be that great of a solution if the socket disconnects when in
-    //messages component, as it might no longer be able to receive events
-    socket.on('enteredChat', () => {  
+    // all chatters receive the full updated user list on each user enter
+    userList.push(username);
+    io.emit('updateUserList', userList);
 
-        // console.log('user data in socket.io')
-        // console.log(socket.request.user);
-        // console.log(socket.request.session.passport?.user);  
-        const username = socket.request.user?.username;
-        if (username) { //means user logged into session
-            socket.broadcast.emit('new message', {
-                messageText: `${username} joined the room.`, username, className: 'notice'
-            });
-            // Array.from(io.sockets.sockets.keys()) for sockets
-            io.emit('updateUserList', currentUsers); 
-            io.emit('updateMessageList', messageList);
-        }
+    // the new client receives the whole updated message list without notices
+    // (once upon enter)
+    socket.emit('updateMessageList', messageList);
+  });
 
-    });
+  socket.on('client message', ({username, messageText}) => {
 
-    // socket.on('enteredLogin', () => {
-    //     //no need to logout here if the client removed its own cookie - passport data automatically removed from session
-    //     //but then how am I supposed to know who to remove? Is there a way of connecting the user in currentUsers to a particular
-    //     //session? Or is removing the cookie from the server the only way?
-    //     if (socket.request.user) {
-    //         currentUsers = currentUsers.filter(user => user.id !== socket.request.user.id)
-    //         socket.request.logout();
-    //         Cookies.set 
-    //     }
-    // });
+    // console.log(`username: ${username}, message: ${messageText}`);
 
-    socket.on('new message', (messageText) => {
-        // const username = users.getUser(socket.handshake.session.passport?.user);
-        const username = users.getUser(socket.request.session.passport?.user);
-        console.log(`User ${username} sent message`)
-        if (username) {
-            socket.broadcast.emit('new message', {messageText, username, className: 'message other'});
-            socket.emit('new message', { messageText, username, className: 'message own'}); 
-        }
-    });
+    // this format is fine, this isnt python
+    messageOther = {className: 'message other', username, messageText}
+    messageOwn = {className: 'message own', username, messageText}
     
-	socket.on('disconnect', () => {
-        io.emit('new message', {messageText: `${socket.id} left the room.`, socketid: socket.id, notice: true});
-		console.log('A user disconnected');
-	});
+    messageList.push(messageOther);
+    socket.broadcast.emit('new message', messageOther);
+    socket.emit('new message', messageOwn);
+  });
 
-  
+    // sockets are volatile so the newly assigned socket.id doesn't refer to
+    // our username  cause it doesn't to through 'enteredChat' event anymore
+    // (since client routines trigger only once) 
+    
+    // can't rely on particular socket 'disconnect', rather the client must fire
+    // an ending event to delete the particular user
+
+    // so we don't need to track the individual socket id's in the userList as they
+    // will change anyway over the course of a session
+
+  socket.on('leaveChat', (username) => {
+
+    
+    io.emit('new message', { 
+      className: 'notice',
+     username: username, 
+     messageText: `${username} left the room.`
+    });
+
+    // deleting user from present users and sending updated info to all clients
+    // except the disconnecting one (their list reaches the end of its lifecycle
+    // anyway right?) // Intermediate disconnects?
+    
+    userList = userList.filter(user => user !== username);
+    io.emit('updateUserList', userList);
+
+  });
+
+  // Destroy sesssion on disconnect? Otherwise memory leak?
 });
 
 // app.get('/', (req, res) => {
@@ -201,6 +182,6 @@ io.on('connection', (socket) => {
 // });
 
 server.listen(port, () => {
-	console.log(`Listening on ${port}`);
+  console.log(`Listening on ${port}`);
 });
 

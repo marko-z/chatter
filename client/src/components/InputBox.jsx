@@ -3,14 +3,15 @@ import './InputBox.css';
 import { socket } from "./Messages";
 import { FaPaperPlane } from "react-icons/fa";
 
-const InputBox = () => {
+const InputBox = ({user}) => {
 
   const [input, setInput] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (input) {
-      socket.emit('new message', input);
+      console.log(`To send: ${user}, ${input}`);
+      socket.emit('client message', {username: user, messageText: input});
       setInput('');
     }
   }

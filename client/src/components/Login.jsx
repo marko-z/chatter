@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import './Login.css';
-import Cookies from "js-cookie";
-import { socket } from './Messages'; // does this run the code in messages everytime it's imported?
 
 const submitCredentials = (route, username, password) => {
   const toSend = JSON.stringify({username, password});
@@ -18,29 +16,13 @@ const submitCredentials = (route, username, password) => {
   }).then(res => res.json()); //either true or false 
 }
 
-const Login = () => {
+const Login = ({setUser}) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [registerUsername, setRegisterUsername] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
   const history = useHistory();
 
-  //immediate logout request upon login
-  useEffect(() => {
-    const response = fetch('/logout', {
-      method: 'POST',
-    })
-    // if (response) { 
-    //   Cookies.remove('connect.sid');
-    //   console.log('Client: removed cookie'); 
-    // }; 
-    //apparently can't put fetch(...).then(Cookies.remove('connect.sid'));
-    //because that will prematurely log us off on the server for some reason
-  }, []); //[] means once upon load?
-
-
-  // Delete either username & password or registerUsername & registerPassword if the
-  // user starts typin in other fields.
   useEffect(() => {
     if (registerUsername || registerPassword) {
       setUsername('');
@@ -56,6 +38,8 @@ const Login = () => {
     e.preventDefault();
     const auth = await submitCredentials('/loginUser', username, password);
     if (auth) {
+      setUser(username);
+      console.log(`login.jsx: setting user to '${username}'`);
       alert('Login successful');
       history.push('/');
       window.location.reload(); //interesting that it doesn't work the other way around (i.e history push after reload)
@@ -64,7 +48,6 @@ const Login = () => {
       // TODO: Alert temporarily appearing on the bottom informing the user
       // if the attempt was successful or unsuccessful. 
     }
-
     setUsername('');
     setPassword('');
   }
@@ -77,8 +60,11 @@ const Login = () => {
       return;
     }
     
-    const token = await submitCredentials('/registerUser', registerUsername, registerPassword);
-    if (token) {
+    const auth = await submitCredentials('/registerUser', registerUsername, registerPassword);
+    if (auth) {
+      setUser(registerUsername)
+      console.log(`login.jsx: setting user to '${registerUsername}'`);
+
       alert('Register successful');
       history.push('/');
       window.location.reload();
